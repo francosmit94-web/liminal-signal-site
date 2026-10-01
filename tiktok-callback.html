@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="referrer" content="no-referrer"><title>TikTok sign-in - Liminal Signal</title><link rel="stylesheet" href="style.css">
+<style>
+#code{display:block;width:100%;min-height:5.5em;margin:12px 0;padding:12px;background:#151922;color:var(--fg);border:1px solid #2a3040;border-radius:8px;font:14px/1.5 ui-monospace,Consolas,monospace;word-break:break-all;resize:vertical}
+button{padding:10px 18px;background:var(--accent);color:#0d0f14;border:0;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+#done{margin-left:12px}
+</style></head><body><main><nav><a href="./">Home</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav>
+<h1>TikTok sign-in</h1>
+<p class="muted">Liminal Signal Uploader setup. This page sends nothing anywhere; it only shows what TikTok returned.</p>
+<div id="ok" hidden>
+<h2>Copy this code back into the setup</h2>
+<textarea id="code" readonly spellcheck="false" aria-label="Authorization code"></textarea>
+<p><button id="copy" type="button">Copy</button><span id="done" class="muted" role="status"></span></p>
+<p class="muted">Copy puts the full address of this page on the clipboard (the setup reads the code and checks the state from it). You can also select the code above and paste that. It works once and expires in a few minutes.</p>
+</div>
+<div id="fail" hidden>
+<h2>TikTok did not authorize</h2>
+<p id="reason"></p>
+<p class="muted">Run the setup again to retry.</p>
+</div>
+<div id="none" hidden>
+<p>Nothing to show: this page is where TikTok returns after you approve the Liminal Signal Uploader during setup.</p>
+</div>
+<footer>&copy; 2026 Liminal Signal &middot; Contact: <a href="mailto:hello.liminalsignal@gmail.com">hello.liminalsignal@gmail.com</a></footer></main>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code"), error = q.get("error"), state = q.get("state");
+  function show(id) { document.getElementById(id).hidden = false; }
+  if (error) {
+    document.getElementById("reason").textContent =
+      error + (q.get("error_description") ? ": " + q.get("error_description") : "");
+    show("fail");
+  } else if (code) {
+    var box = document.getElementById("code"), done = document.getElementById("done");
+    box.value = code;
+    box.addEventListener("focus", function () { box.select(); });
+    document.getElementById("copy").addEventListener("click", function () {
+      var href = location.href;
+      function ok() { done.textContent = state ? "Copied. Go back to the setup." : "Copied."; }
+      function manual() {
+        box.value = href; box.focus(); box.select();
+        done.textContent = "Press Ctrl+C to copy.";
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(href).then(ok, manual);
+      } else { manual(); }
+    });
+    show("ok");
+  } else {
+    show("none");
+  }
+})();
+</script></body></html>
